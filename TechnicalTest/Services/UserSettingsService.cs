@@ -1,28 +1,31 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using TechnicalTest.Enum;
 using TechnicalTest.Interface;
+using TechnicalTest.Model;
 
 namespace TechnicalTest.Services
 {
     public class UserSettingsService : IUserSettingsService
     {
-
-        public bool CheckEnabledSettings(string settings, int settingsNumber)
+        public bool IsFeatureEnabled(string settings, FeatureSettings feature)
         {
-            // Ensure the settings string is valid
-            if (string.IsNullOrEmpty(settings) || settings.Length != 8)
+            return settings[(int)feature -1] == '1';
+        }
+
+        public FeatureSettingsModel CheckAllFeatureEnabled(string settings)
+        {
+            var featureSettings = new FeatureSettingsModel
             {
-                throw new ArgumentException("Settings must be an 8-bit binary string.");
-            }
+                SmsNotifications = IsFeatureEnabled(settings, FeatureSettings.SmsNotificationsEnabled),
+                PushNotifications = IsFeatureEnabled(settings, FeatureSettings.PushNotificationsEnabled),
+                Biometrics = IsFeatureEnabled(settings, FeatureSettings.BiometricsEnabled),
+                Camera = IsFeatureEnabled(settings, FeatureSettings.CameraEnabled),
+                Location = IsFeatureEnabled(settings, FeatureSettings.LocationEnabled),
+                NFC = IsFeatureEnabled(settings, FeatureSettings.NfcEnabled),
+                Vouchers = IsFeatureEnabled(settings, FeatureSettings.VouchersEnabled),
+                Loyalty = IsFeatureEnabled(settings, FeatureSettings.LoyaltyEnabled)
+            };
 
-            if (settingsNumber < 1 || settingsNumber > 8)
-            {
-                throw new ArgumentOutOfRangeException(nameof(settingsNumber), "SettingsNumber must be between 1 and 8.");
-            }
-
-            int index = 8 - settingsNumber; 
-
-            return settings[index] == '1';
+            return featureSettings;
         }
     }
 }
